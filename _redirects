@@ -1,0 +1,22 @@
+# Cloudflare Pages / Workers 静态资源规则
+# 背景：服务器实际发布的是「仓库根目录」，因此本文件本身也会被发布。
+# 语法：[来源] [目标] [状态码]，支持 :splat；200 = 内部重写（地址栏不变）
+
+# 仓库自身文件与本地素材：拦成 404，避免被直接下载
+/README.md           /404.html  404
+/wrangler.toml       /404.html  404
+/.gitignore          /404.html  404
+/.gitattributes      /404.html  404
+/.assetsignore       /404.html  404
+/_redirects          /404.html  404
+/_verify_assets.py   /404.html  404
+/_verify_live.py     /404.html  404
+/_poll_live.py       /404.html  404
+/_fingerprint.py     /404.html  404
+/source-photo.jpg    /404.html  404
+/preview.png         /404.html  404
+/xdu-splash.zip      /404.html  404
+
+# 可选：把未知路径一律跳到目标站（默认行为是 404）。
+# 让 /任意路径 也跳到西电官网，就把下面这行前面的 # 去掉：
+# /:path+  https://www.xidian.edu.cn/  302
