@@ -2,6 +2,9 @@
 preview.png
 source-photo.jpg
 
+# 手动上传用的旧压缩包，改用 git 自动部署后不再需要
+xdu-splash.zip
+
 # 系统垃圾
 .DS_Store
 Thumbs.db
