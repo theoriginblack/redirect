@@ -5,6 +5,13 @@ source-photo.jpg
 # 手动上传用的旧压缩包，改用 git 自动部署后不再需要
 xdu-splash.zip
 
+# wrangler 本地缓存 / dry-run 产物
+.wrangler
+.wrangler-dryrun
+
+# 本地校验脚本
+_verify_assets.py
+
 # 系统垃圾
 .DS_Store
 Thumbs.db

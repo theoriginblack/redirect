@@ -1,0 +1,13 @@
+# Cloudflare Workers 静态资源部署配置
+# 没有这个文件时，Workers Builds 的默认 `npx wrangler deploy` 会尝试"自动检测框架"
+# 并给你开一个 PR，多一步且不可控。显式声明后，push 即部署。
+
+name = "redirect"
+compatibility_date = "2026-10-13"
+
+# 静态资源目录 = 仓库根目录（index.html、spin*.webp/png、_headers 都在这里）
+[assets]
+directory = "."
+
+# 没有 main：纯静态资源 Worker，不需要 Worker 脚本。
+# 请求先匹配静态资源；未命中才会走 not_found_handling。
