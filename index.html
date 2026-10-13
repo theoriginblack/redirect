@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#f4ecd6">
+<title>正在前往西安电子科技大学…</title>
+<meta http-equiv="refresh" content="5;url=https://www.xidian.edu.cn/">
+<link rel="preconnect" href="https://www.xidian.edu.cn">
+<style>
+  :root{
+    /* ===== 想调旋转速度，只改这两行 ===== */
+    --spin-duration: 6s;     /* 转一圈用多久，越小越快 */
+    --spin-direction: normal;/* normal = 顺时针，reverse = 逆时针 */
+
+    --ink:#2a2416;
+    --muted:#7d6f4c;
+    --accent:#e0a02a;
+    --paper:#f4ecd6;
+
+    /* ===== 跳转等待时长：改这里，下面 JS 的 wait 也改成同样的毫秒数 ===== */
+    --wait: 5s;
+  }
+  html{ background:var(--paper); }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; color:var(--ink);
+    font:16px/1.6 system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    display:grid; place-items:center;
+    padding:24px calc(20px + env(safe-area-inset-right)) calc(24px + env(safe-area-inset-bottom)) calc(20px + env(safe-area-inset-left));
+    overflow:hidden;
+  }
+
+  /* 底色 + 柔和渐晕，给透明素材一个"落点" */
+  .bg{ position:fixed; inset:0; z-index:-2; background:var(--paper); }
+  .bg::after{
+    content:""; position:absolute; inset:0;
+    background:
+      radial-gradient(46% 44% at 50% 42%, rgba(255,255,255,.95), rgba(255,255,255,0) 72%),
+      radial-gradient(120% 90% at 50% 24%, transparent 46%, rgba(116,92,30,.16) 100%);
+  }
+
+  .card{
+    display:flex; flex-direction:column; align-items:center; gap:18px;
+    text-align:center; max-width:560px;
+    animation:rise .8s cubic-bezier(.2,.8,.2,1) both;
+  }
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+  /* ---------- 旋转主体 ---------- */
+  .spinner{
+    position:relative; display:grid; place-items:center;
+    width:clamp(176px, 32vh, 340px); aspect-ratio:1;
+  }
+  .spinner::before{            /* 底下的光晕，呼吸感 */
+    content:""; position:absolute; inset:6%; border-radius:50%;
+    background:radial-gradient(circle, rgba(255,255,255,.92), rgba(255,255,255,0) 68%);
+    box-shadow:0 16px 46px rgba(120,96,32,.16);
+    animation:breathe 3.4s ease-in-out infinite;
+  }
+  @keyframes breathe{0%,100%{transform:scale(.94);opacity:.85}50%{transform:scale(1.02);opacity:1}}
+
+  .spin{
+    width:100%; height:100%; object-fit:contain;
+    transform-origin:50% 50%;
+    will-change:transform;
+    filter:drop-shadow(0 10px 22px rgba(90,70,20,.22));
+    animation:spin var(--spin-duration) linear infinite var(--spin-direction);
+  }
+  @keyframes spin{ from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+  /* ---------- 文案 ---------- */
+  .kicker{
+    margin:0; font-size:12px; letter-spacing:.22em; text-transform:uppercase;
+    color:var(--muted); font-weight:600;
+  }
+  h1{ margin:0; font-size:clamp(18px,2.1vw,22px); line-height:1.45; font-weight:700 }
+  h1 b{ background:linear-gradient(transparent 62%, rgba(250,196,60,.62) 62%) }
+
+  .sub{ display:flex; align-items:center; justify-content:center; gap:9px; margin:0; color:var(--muted); font-size:14px }
+  .sub .dots{display:flex;gap:5px}
+  .sub .dots i{ width:7px;height:7px;border-radius:50%;background:var(--accent);animation:bounce 1.25s ease-in-out infinite }
+  .sub .dots i:nth-child(2){animation-delay:.15s}
+  .sub .dots i:nth-child(3){animation-delay:.3s}
+  @keyframes bounce{0%,80%,100%{transform:translateY(0);opacity:.45}40%{transform:translateY(-6px);opacity:1}}
+
+  .cta{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:11px 20px; border-radius:999px;
+    background:var(--ink); color:#fff8e7; font-size:14.5px; font-weight:600; text-decoration:none;
+    box-shadow:0 8px 20px rgba(42,36,22,.22);
+    transition:transform .18s cubic-bezier(.2,.8,.2,1), box-shadow .18s;
+  }
+  .cta:hover{ transform:translateY(-2px); box-shadow:0 12px 26px rgba(42,36,22,.28) }
+  .cta:active{ transform:translateY(0) scale(.98) }
+  .cta svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+  .cta svg path{animation:nudge 1.4s ease-in-out infinite}
+  @keyframes nudge{0%,100%{transform:translateX(0)}50%{transform:translateX(3px)}}
+  .note{margin:0; font-size:12.5px; color:var(--muted); opacity:.85}
+
+  .bar{
+    position:fixed; left:0; bottom:0; height:3px; width:100%;
+    background:linear-gradient(90deg,#f0b429,#e0761d);
+    transform-origin:left; transform:scaleX(0);
+    animation:load var(--wait) cubic-bezier(.4,0,.2,1) forwards;
+  }
+  @keyframes load{to{transform:scaleX(1)}}
+
+  /* 系统开了"减少动态效果"就停转，但页面照常跳转 */
+  @media (prefers-reduced-motion: reduce){
+    .spin,.spinner::before,.card,.sub .dots i,.cta svg path,.bar{animation:none!important}
+    .cta{transition:none}
+  }
+</style>
+</head>
+<body>
+  <div class="bg" aria-hidden="true"></div>
+
+  <main class="card">
+    <div class="spinner">
+      <picture>
+        <source srcset="spin-small.webp" media="(max-width:600px)" type="image/webp">
+        <source srcset="spin-small.png"  media="(max-width:600px)">
+        <source srcset="spin.webp" type="image/webp">
+        <source srcset="spin.png">
+        <img class="spin" src="spin.png" alt="" width="760" height="760" decoding="async">
+      </picture>
+    </div>
+
+    <p class="kicker">西安电子科技大学</p>
+    <h1>正在前往<b>西电</b>官网…</h1>
+    <p class="sub">
+      <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span>如果页面没有自动跳转</span>
+    </p>
+    <a class="cta" id="go" href="https://www.xidian.edu.cn/">
+      立即前往
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+    </a>
+    <p class="note">目标地址：www.xidian.edu.cn</p>
+  </main>
+
+  <div class="bar" aria-hidden="true"></div>
+
+  <script>
+    (function () {
+      var target = "https://www.xidian.edu.cn/";
+      var wait   = 5000;              // JS 可用时的等待毫秒数（与上面的 meta refresh 秒数保持一致）
+      setTimeout(function () { location.replace(target); }, wait);
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+# 预览截图和原始照片没必要进仓库
+preview.png
+source-photo.jpg
+
+# 系统垃圾
+.DS_Store
+Thumbs.db
+desktop.ini
