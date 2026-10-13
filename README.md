@@ -2,73 +2,68 @@
 
 Cloudflare Pages 静态跳转页：源域名进来自动播放动画，然后跳到目标站点。
 
-**目标**：`https://www.xidian.edu.cn/`
 **源域名**：`xn--psszg58c6d346v9y1a.work`（`西安奶龙大学.work`）
+**目标**：`https://www.xidian.edu.cn/`
+**仓库**：`https://github.com/theoriginblack/redirect`
 
 ---
 
 ## 目录结构
 
 ```
-index.html          动画页本体（要改的只有这一个文件）
-_headers            禁止缓存 + noindex
-spin.webp/.png      760×760 透明旋转素材
-spin-small.webp/.png 420px 小图，≤600px 视口用
+public/                    ← 只有这里面的东西会被发布
+  index.html               动画页本体（要改的就是这个）
+  _headers                 禁止缓存 + noindex
+  spin.webp / spin.png     760×760 透明旋转素材
+  spin-small.webp/.png     420px 小图，≤600px 视口用
+
+README.md                  ← 以下都不发布
+wrangler.toml
+.assetsignore
+preview.png               渲染预览图（本机）
+source-photo.jpg          原始带水印照片（本机）
 ```
+
+**为什么要分 `public/`**：Pages 会把"构建输出目录"里的所有文件原样公开。
+早期把仓库根目录当输出目录，导致 `README.md`、`wrangler.toml`、原始照片都能被直接下载
+（`https://你的域名/README.md` 能读到域名和部署细节）。收进 `public/` 后从结构上杜绝。
 
 ---
 
-## 一次配置：让改动自动上线
+## 部署状态与关键设置
 
-配好之后，**再也不需要手动往 Cloudflare 上传**。改完推上去，Cloudflare 自动重新部署，
-自定义域名也跟着项目走，不用重新绑定。
+已通过 Git 集成自动部署。**每次 push 到 `main` 会自动重新部署，不用再手动上传。**
 
-1. 在 GitHub 建一个空仓库（Private 也可以），比如 `xdu-splash`。
-2. 本地关联并推上去：
-   ```bash
-   git remote add origin https://github.com/<你的用户名>/xdu-splash.git
-   git push -u origin main
-   ```
-3. Cloudflare Dashboard → **Workers & Pages** → **Create** → **Pages** → **Connect to Git**，
-   选这个仓库。
-4. 构建设置（纯静态，全部留空/按下表填）：
+Pages 项目里必须确认这一项：
 
-   | 项 | 值 |
-   |---|---|
-   | Framework preset | `None` |
-   | Build command | 留空 |
-   | Build output directory | `/` |
+| 设置项 | 值 |
+|---|---|
+| Build command | 留空 |
+| **Build output directory** | **`public`** |
+| Framework preset | `None` |
 
-5. 部署完，进项目 → **Custom domains** → 绑定 `xn--psszg58c6d346v9y1a.work`（只需一次）。
-6. 到 **Rules → Redirect Rules**，把原来那条"源域名 → xidian.edu.cn"的规则**删掉**。
-   它工作在 HTTP 层，优先级高于页面，留着就永远看不到动画。
+> ⚠️ 如果 Build output directory 还是 `/`（仓库根），Pages 会重新把整个仓库公开出去。
+> 改成 `public` 后重新部署一次即可（Deployments 页面点 Retry deployment 也行）。
 
-### 日常改动的两种方式
+另外两项一次性的：
 
-**方式 A：直接在 GitHub 网页改**（不用装任何东西）
-打开仓库里的 `index.html` → 点铅笔图标 → 改 → `Commit changes` → Cloudflare 自动部署。
+- **Custom domains**：绑定 `xn--psszg58c6d346v9y1a.work`
+- **Rules → Redirect Rules**：删掉原来那条"源域名 → xidian.edu.cn"的规则。
+  它工作在 HTTP 层、优先级高于页面，留着就永远看不到动画。
+
+### 日常改动
+
+**方式 A：GitHub 网页改**（不用装东西）
+打开 `public/index.html` → 铅笔图标 → 改 → `Commit changes` → 自动部署。
 
 **方式 B：本地改**
 ```bash
 git add -A && git commit -m "调整跳转时长" && git push
 ```
 
-> 每次 push 还会额外生成一个预览域名（形如 `<hash>.xdu-splash.pages.dev`），
-> 可以先用它确认效果，再决定是否推到生产分支。
-
-### 不想用 GitHub 的话
-
-本地装一次 wrangler，之后一条命令就更新，不用进 Cloudflare 网页：
-
-```bash
-npx wrangler pages deploy . --project-name=xdu-splash
-```
-
-自定义域名同样保留，只需在最后一次 setup 里绑一次。
-
 ---
 
-## 常用调整（都只改 index.html）
+## 常用调整（都只改 public/index.html）
 
 ### 跳转等待时长 —— 三处必须一致
 
@@ -79,7 +74,7 @@ npx wrangler pages deploy . --project-name=xdu-splash
 | JS `var wait` | `5000`（毫秒） |
 
 改成 7 秒就是：`content="7;url=..."`、`--wait: 7s`、`var wait = 7000`。
-若 meta 的秒数小于实际动画时长，无 JS 环境会提前跳走、动画被截断。
+若 meta 的秒数小于动画时长，无 JS 环境会提前跳走、动画被截断。
 
 ### 旋转速度 / 方向
 
@@ -92,6 +87,15 @@ npx wrangler pages deploy . --project-name=xdu-splash
 
 改三处：`<meta http-equiv="refresh">`、`<a id="go" href="...">`、JS 里的 `var target`。
 
+### 未知路径的行为
+
+Pages 默认会把未命中的路径回退到 `index.html`（所以 `/任意路径` 也是动画页，不是 404）。
+这是可接受的行为；若要改成一律 302 到目标站，可在 `public/` 放一个 `_redirects`：
+
+```
+/:path+  https://www.xidian.edu.cn/  302
+```
+
 ---
 
 ## 素材说明
@@ -99,7 +103,7 @@ npx wrangler pages deploy . --project-name=xdu-splash
 原始照片是白底，直接旋转会在浅色背景上露出白色方块，所以做了抠图：角色是饱和暖黄绿
 （饱和度 0.2~0.6），背景是几乎无饱和的白墙灰影（<0.05），用饱和度阈值配合
 **从画面边缘的连通性**判定背景，再取最大连通块作为角色本体，边缘 1px 羽化。
-右下角的贴吧水印已通过裁掉底部约 4.5% 去除。
+右下角贴吧水印已通过裁掉底部约 4.5% 去除。
 
 换图时：主体同样是"高饱和 + 纯色背景"的话，同思路可用；若主体是白/浅色（白玩偶、
 文字 logo），饱和度法会失效，改用圆形裁切（`border-radius:50%` + `object-fit:cover`）旋转最省事。
@@ -117,9 +121,24 @@ npx wrangler pages deploy . --project-name=xdu-splash
 - **无障碍**：`prefers-reduced-motion: reduce` 时停转，但页面照常跳转。
 - **中文域名**：分享时给 Unicode 形式（`西安奶龙大学.work`）或完整可点链接。
 
-## 验证情况
+---
 
-- 页面在 1440×900 与 390×844 下用无头 Edge 实际渲染通过。
+## 验证记录
+
+**线上实测（`https://xn--psszg58c6d346v9y1a.work`）：**
+
+| 项目 | 结果 |
+|---|---|
+| `/` | `200`，`text/html`，动画页内容齐全（文案、meta refresh、`location.replace`、`@keyframes spin`、素材引用、reduced-motion 分支全部命中） |
+| 4 个素材 | 全部 `200`，`image/webp` / `image/png` 正确 |
+| 旧 Redirect Rule | 已让路（否则 `/` 会是 302） |
+| 未知路径 | `200` 回退到动画页（Pages 默认行为） |
+| 仓库文件暴露 | **修复前** `/README.md`、`/wrangler.toml`、`/source-photo.jpg` 可被直接下载；已通过 `public/` 结构调整解决 |
+
+**本地验证：**
+- 页面在 1440×900 与 390×844 下用无头 Edge 渲染通过。
 - **旋转动画无法用无头截图验证**：注入探针读 `getComputedStyle` 得到
-  `playState=running` 但 `currentTime=0ms`，说明无头模式的动画时钟不推进。
+  `playState=running` 但 `currentTime=0ms`，说明无头模式动画时钟不推进。
   已人工核对 CSS：单一 `transform: rotate()`、`linear infinite`、素材正方形且四角留 3% 余量。
+- 本地 `wrangler dev` 的 HTTP 请求在本机环境超时（同环境 Python http.server 正常），
+  故未能本地实测请求响应，改用线上实测替代。

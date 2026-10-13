@@ -1,13 +1,16 @@
-# Cloudflare Workers 静态资源部署配置
-# 没有这个文件时，Workers Builds 的默认 `npx wrangler deploy` 会尝试"自动检测框架"
-# 并给你开一个 PR，多一步且不可控。显式声明后，push 即部署。
+# Cloudflare 部署配置
+#
+# 用 Pages（Connect to Git）时：真正生效的是 Pages 项目里的
+#   Settings → Build → Build output directory = public
+# 本文件对 Pages 无副作用，仅用于 Workers 路线。
+#
+# 用 Workers 时：[assets] 会指定要上传的静态资源目录。
 
 name = "redirect"
 compatibility_date = "2026-10-13"
 
-# 静态资源目录 = 仓库根目录（index.html、spin*.webp/png、_headers 都在这里）
+# 只发布 public/ —— 仓库根目录的 README、配置、原始照片一律不会上线
 [assets]
-directory = "."
+directory = "./public"
 
-# 没有 main：纯静态资源 Worker，不需要 Worker 脚本。
-# 请求先匹配静态资源；未命中才会走 not_found_handling。
+# 没有 main：纯静态资源，不需要 Worker 脚本。

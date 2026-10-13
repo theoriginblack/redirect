@@ -16,3 +16,6 @@ _verify_assets.py
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# 本地校验脚本
+_verify_live.py

@@ -1,19 +1,21 @@
-# 防止这些文件被当成静态资源公开上传（.assetsignore 格式同 .gitignore）
-# _headers 会被 Workers 解析成响应头规则，本身不会被外发；这里列出是双保险。
+# 这个文件只影响 Cloudflare Workers 的静态资源上传（Pages 不读它）。
+# 现在真正要发布的内容都收在 public/ 里，仓库根目录的配置/说明/原始照片天然不会上线。
+# 保留此文件是为了让 Workers 的 [assets] directory = "./public" 也保持干净。
 
-.git
-.gitignore
-.gitattributes
+# 开发/说明类文件（正常情况下不在 public/ 里，列出来是双保险）
 README.md
 wrangler.toml
 .assetsignore
-_verify_assets.py
+.gitignore
+.gitattributes
 
-# 只在本机存在的文件（已在 .gitignore 里，列出来是为了本地 dry-run 也干净）
+# 本机专用素材（已在 .gitignore 里，不会进仓库）
 preview.png
 source-photo.jpg
 xdu-splash.zip
 
-# wrangler 本地缓存
+# 本地脚本与缓存
+_verify_assets.py
+_verify_live.py
 .wrangler
 node_modules
