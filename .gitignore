@@ -1,21 +1,21 @@
-# 预览截图和原始照片没必要进仓库
-preview.png
-source-photo.jpg
-
-# 手动上传用的旧压缩包，改用 git 自动部署后不再需要
+# 手动上传用的旧压缩包
 xdu-splash.zip
+
+# 本地说明文档（含版权提示等，不上仓库、不会被发布）
+DEPLOY-NOTES.md
+
+# 本地校验/探针脚本
+_*.py
 
 # wrangler 本地缓存 / dry-run 产物
 .wrangler
 .wrangler-dryrun
 
-# 本地校验脚本
-_verify_assets.py
+# 本机专用素材
+preview.png
+source-photo.jpg
 
 # 系统垃圾
 .DS_Store
 Thumbs.db
 desktop.ini
-
-# 本地校验脚本
-_verify_live.py
