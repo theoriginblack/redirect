@@ -4,8 +4,9 @@ xdu-splash.zip
 # 本地说明文档（含版权提示等，不上仓库、不会被发布）
 DEPLOY-NOTES.md
 
-# 本地校验/探针脚本
+# 本地脚本 / 配置（这个项目由 Pages 部署，不读 wrangler.toml）
 _*.py
+wrangler.toml
 
 # wrangler 本地缓存 / dry-run 产物
 .wrangler
